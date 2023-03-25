@@ -61,10 +61,10 @@ export default function Home() {
             alignItems: 'flex-start',
           }}>
             <b>As informações mostradas aqui mostradas são calculadas com base no calendário de aulas e algumas informações extras.</b>
-            <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva outros tipo de reserva (eventos, entidades, etc.) em conta.</p>
+            <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, entidades, etc.).</p>
             Faça bom uso :)
           </Alert>
-          <Tabs value={predio} onChange={(event, newValue) => { handlePredioChange(parseInt(newValue)) }} size='sm' color='danger'>
+          <Tabs value={predio} onChange={(event, newValue) => { handlePredioChange(newValue as number) }} size='sm' color='danger'>
             <TabList variant="soft" color="neutral">
               {
                 predios.map((predio, index) => (
