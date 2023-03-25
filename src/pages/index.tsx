@@ -95,7 +95,12 @@ export default function Home() {
             <Card variant='outlined' key={index}>
               <Typography level="h6" fontSize={14} color='danger'>{sala.nome}</Typography>
               <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
-              <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString(DateTime.TIME_24_SIMPLE)}</b></Typography>
+              <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
+                timeZone: 'America/Sao_Paulo',
+                hour: "numeric",
+                minute: "numeric",
+                hourCycle: "h23",
+              })}</b></Typography>
             </Card>
           ))
           ) : (
