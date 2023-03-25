@@ -137,5 +137,5 @@ export default async function handler(
       };
     });
 
-  res.status(200).json(salasLivres);
+  res.status(200).json(salasLivres.filter((sala) => sala.freeUntil > rightNow));
 }
