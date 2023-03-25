@@ -1,11 +1,41 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Card from '@mui/joy/Card';
+import { Alert, Badge, Chip, CircularProgress, Tab, TabList, Tabs, Typography } from '@mui/joy';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { SalasResponse } from '../types';
+import useSWR from 'swr';
+import luxon, { DateTime } from 'luxon';
 
-const inter = Inter({ subsets: ['latin'] })
+const predios = [
+  {
+    nome: 'Prédio 1',
+    apiName: 'PRÉDIO 1',
+    andares: [-1, 1, 2, 3, 4]
+  },
+  {
+    nome: 'Prédio 2',
+    apiName: 'PRÉDIO 2',
+    andares: [-1, 1, 2, 3, 4, 5]
+  }
+]
+
+async function fetchSalasLivres() {
+  const response = axios.get<SalasResponse>('/api/salas').then(res => res.data)
+  return response
+}
 
 export default function Home() {
+  const { data, error, isLoading } = useSWR('/api/salas', fetchSalasLivres)
+
+  const [predio, setPredio] = useState(0)
+  const [andar, setAndar] = useState(0)
+
+  function handlePredioChange(event, newValue: number) {
+    setPredio(newValue)
+    if (newValue !== predios.length) setAndar(predios[newValue].andares.length)
+  }
+
   return (
     <>
       <Head>
@@ -14,108 +44,67 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div>
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+      <main>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}>
+          <Alert color='danger' style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+          }}>
+            <b>As informações mostradas aqui mostradas são calculadas com base no calendário de aulas e algumas informações extras.</b>
+            <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva outros tipo de reserva (eventos, entidades, etc.) em conta.</p>
+            Faça bom uso :)
+          </Alert>
+          <Tabs value={predio} onChange={handlePredioChange} size='sm' color='danger'>
+            <TabList variant="soft" color="neutral">
+              {
+                predios.map((predio, index) => (
+                  <Tab key={index}>{predio.nome}</Tab>
+                ))
+              }
+              <Tab color='danger' key={predios.length}>Todos</Tab>
+            </TabList>
+          </Tabs>
+          {
+            // TODO: Implementar filtro de andares
+            false && (
+              <Tabs size='sm' color='danger'>
+            <TabList variant="soft" color="neutral">
+              {
+                predios[predio].andares.map((andar, index) => (
+                  <Tab key={index}>{andar}º</Tab>
+                ))
+              }
+              <Tab color='danger'>Todos</Tab>
+            </TabList>
+          </Tabs>
+            )
+          }
+          {
+          data ? (
+            data.filter(sala => predio === predios.length || sala.predio == predios[predio].apiName).sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime()).map((sala, index) => (
+            <Card variant='outlined' key={index}>
+              <Typography level="h6" fontSize={14} color='danger'>{sala.nome}</Typography>
+              <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
+              <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString(DateTime.TIME_24_SIMPLE)}</b></Typography>
+            </Card>
+          ))
+          ) : (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              padding: '6rem',
+            }}>
+              <CircularProgress />
+            </div>
+          )
+        }
         </div>
       </main>
     </>
