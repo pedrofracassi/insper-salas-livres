@@ -70,9 +70,8 @@ export default function Home() {
             flexDirection: 'column',
             alignItems: 'flex-start',
           }}>
-            <b>As informações mostradas aqui mostradas são calculadas com base no calendário de aulas e algumas informações extras.</b>
-            <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, entidades, etc.).</p>
-            Faça bom uso :)
+            <p><b>As informações mostradas aqui mostradas são calculadas com base no calendário de aulas e algumas informações extras.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, entidades, etc.).</p>
+            <p>Faça bom uso :)</p>
           </Alert>
           <Tabs value={predio} onChange={(event, newValue) => { handlePredioChange(newValue as number) }} size='sm' color='danger'>
             <TabList variant="soft" color="neutral">
