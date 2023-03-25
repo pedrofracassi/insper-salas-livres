@@ -111,7 +111,11 @@ export default async function handler(
         .sort((a, b) => a.hora_inicio.getTime() - b.hora_inicio.getTime())[0];
 
       const buildingClosingTime = new Date();
-      buildingClosingTime.setUTCHours(23 + 3, 0, 0, 0);
+      if (rightNow.getDay() === 6) {
+        buildingClosingTime.setUTCHours(17 + 3, 0, 0, 0);
+      } else {
+        buildingClosingTime.setUTCHours(23 + 3, 0, 0, 0);
+      }
 
       let roomClosingTime = buildingClosingTime;
       if (roomClosingTimes[salaLivre.nome]) {
