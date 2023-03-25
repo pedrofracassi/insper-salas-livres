@@ -97,7 +97,8 @@ export default async function handler(
       );
       const eventosAgora = eventos.filter((evento) => {
         return (
-          evento.hora_inicio <= rightNow && evento.hora_termino >= rightNow
+          evento.hora_inicio.getTime() <= rightNow.getTime() &&
+          evento.hora_termino.getTime() >= rightNow.getTime()
         );
       });
 
@@ -105,10 +106,9 @@ export default async function handler(
     })
     .map((salaLivre) => {
       const nextEvent = calendarioFixed
+        .filter((evento) => evento.hora_inicio.getTime() > rightNow.getTime())
         .filter((evento) => evento.sala === salaLivre.nome)
         .sort((a, b) => a.hora_inicio.getTime() - b.hora_inicio.getTime())[0];
-
-      console.log(nextEvent);
 
       const buildingClosingTime = new Date();
       buildingClosingTime.setUTCHours(23 + 3, 0, 0, 0);
