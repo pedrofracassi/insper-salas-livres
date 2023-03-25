@@ -112,7 +112,7 @@ export default async function handler(
 
       const buildingClosingTime = new Date();
       if (rightNow.getDay() === 6) {
-        buildingClosingTime.setUTCHours(17 + 3, 0, 0, 0);
+        buildingClosingTime.setUTCHours(20 + 3, 0, 0, 0);
       } else {
         buildingClosingTime.setUTCHours(23 + 3, 0, 0, 0);
       }
