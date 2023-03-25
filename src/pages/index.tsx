@@ -25,6 +25,12 @@ async function fetchSalasLivres() {
   return response
 }
 
+function getNumeroAndar(stringAndar: string) {
+  if (stringAndar === 'TÉRREO') return 0
+  if (stringAndar.includes('SUBSOLO')) return -parseInt(stringAndar.split('')[0])
+  return parseInt(stringAndar.split('')[0])
+}
+
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/salas', fetchSalasLivres)
 
@@ -35,6 +41,10 @@ export default function Home() {
   function handlePredioChange(newValue: number) {
     setPredio(newValue)
     if (newValue !== predios.length) setAndar(predios[newValue].andares.length)
+  }
+
+  function handleAndarChange(newValue: number) {
+    setAndar(newValue)
   }
 
   return (
@@ -75,34 +85,37 @@ export default function Home() {
             </TabList>
           </Tabs>
           {
-            // TODO: Implementar filtro de andares
-            false && (
-              <Tabs size='sm' color='danger'>
-            <TabList variant="soft" color="neutral">
-              {
-                predios[predio].andares.map((andar, index) => (
-                  <Tab key={index}>{andar}º</Tab>
-                ))
-              }
-              <Tab color='danger'>Todos</Tab>
-            </TabList>
-          </Tabs>
+            predio !== predios.length && (
+              <Tabs value={andar} onChange={(event, newValue) => { handleAndarChange(newValue as number) }} size='sm' color='danger'>
+                <TabList variant="soft" color="neutral">
+                  {
+                    predios[predio].andares.map((andar, index) => (
+                      <Tab key={index}>{andar}º</Tab>
+                    ))
+                  }
+                  <Tab color='danger'>Todos</Tab>
+                </TabList>
+              </Tabs>
             )
           }
           {
           data ? (
-            data.filter(sala => predio === predios.length || sala.predio == predios[predio].apiName).sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime()).map((sala, index) => (
-            <Card variant='outlined' key={index}>
-              <Typography level="h6" fontSize={14} color='danger'>{sala.nome}</Typography>
-              <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
-              <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
-                timeZone: 'America/Sao_Paulo',
-                hour: "numeric",
-                minute: "numeric",
-                hourCycle: "h23",
-              })}</b></Typography>
-            </Card>
-          ))
+            data
+              .filter(sala => predio === predios.length || sala.predio == predios[predio].apiName)
+              .filter(sala => !predios[predio] || andar === predios[predio].andares.length || getNumeroAndar(sala.andar) == predios[predio].andares[andar])
+              .sort((a, b) => a.nome > b.nome ? 1 : -1)
+              .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime()).map((sala, index) => (
+                <Card variant='outlined' key={index}>
+                  <Typography level="h6" fontSize={14} color='danger'>{sala.nome}</Typography>
+                  <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
+                  <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
+                    timeZone: 'America/Sao_Paulo',
+                    hour: "numeric",
+                    minute: "numeric",
+                    hourCycle: "h23",
+                  })}</b></Typography>
+                </Card>
+              ))
           ) : (
             <div style={{
               display: 'flex',
