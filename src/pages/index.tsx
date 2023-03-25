@@ -31,6 +31,7 @@ export default function Home() {
   const [predio, setPredio] = useState(0)
   const [andar, setAndar] = useState(0)
 
+  // @ts-ignore
   function handlePredioChange(event, newValue: number) {
     setPredio(newValue)
     if (newValue !== predios.length) setAndar(predios[newValue].andares.length)
@@ -59,6 +60,7 @@ export default function Home() {
             <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva outros tipo de reserva (eventos, entidades, etc.) em conta.</p>
             Faça bom uso :)
           </Alert>
+          { // @ts-ignore }
           <Tabs value={predio} onChange={handlePredioChange} size='sm' color='danger'>
             <TabList variant="soft" color="neutral">
               {

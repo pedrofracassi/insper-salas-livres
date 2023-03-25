@@ -75,7 +75,7 @@ export default async function handler(
 
   const nomesSalasUnicas = [
     ...new Set(calendarioFixed.map((evento) => evento.sala)),
-  ].filter((sala) => !ignoredRooms.includes(sala.nome));
+  ].filter((sala) => !ignoredRooms.includes(sala));
 
   const salasUnicas = nomesSalasUnicas.map((nomeSala) => {
     const sala = calendarioFixed.find((evento) => evento.sala === nomeSala);
