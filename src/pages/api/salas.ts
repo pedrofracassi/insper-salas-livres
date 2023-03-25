@@ -11,7 +11,7 @@ const ignoredRooms = [
   "REUNIÃO 732",
 ];
 
-// IMPORTANTE: Horários sempre em
+// IMPORTANTE: Horários sempre em UTC
 const roomClosingTimes: {
   [key: string]: [number, number, number, number];
 } = {
