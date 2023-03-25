@@ -130,6 +130,7 @@ export default async function handler(
       };
     })
     .filter((sala) => !ignoredRooms.includes(sala.nome))
+    .filter((sala) => sala.freeUntil > rightNow)
     .map((sala) => {
       return {
         ...sala,
@@ -137,5 +138,5 @@ export default async function handler(
       };
     });
 
-  res.status(200).json(salasLivres.filter((sala) => sala.freeUntil > rightNow));
+  res.status(200).json(salasLivres);
 }
