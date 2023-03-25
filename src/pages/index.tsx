@@ -16,7 +16,7 @@ const predios = [
   {
     nome: 'Prédio 2',
     apiName: 'PRÉDIO 2',
-    andares: [-1, 1, 2, 3, 4, 5]
+    andares: [1, 2, 3, 4, 5]
   }
 ]
 
