@@ -64,7 +64,6 @@ export default function Home() {
             <p>As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva outros tipo de reserva (eventos, entidades, etc.) em conta.</p>
             Faça bom uso :)
           </Alert>
-          { // @ts-ignore }
           <Tabs value={predio} onChange={handlePredioChange} size='sm' color='danger'>
             <TabList variant="soft" color="neutral">
               {
