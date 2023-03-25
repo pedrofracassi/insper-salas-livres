@@ -34,8 +34,8 @@ function getNumeroAndar(stringAndar: string) {
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/salas', fetchSalasLivres)
 
-  const [predio, setPredio] = useState(0)
-  const [andar, setAndar] = useState(0)
+  const [predio, setPredio] = useState(predios.length)
+  const [andar, setAndar] = useState(predios[predio].andares.length)
 
   // @ts-ignore
   function handlePredioChange(newValue: number) {
