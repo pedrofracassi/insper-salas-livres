@@ -44,10 +44,10 @@ export default async function handler(
       const dataSplit = evento.data[0].split("/");
 
       const horaInicio = new Date(
-        `${dataSplit[2]}-${dataSplit[1]}-${dataSplit[0]}T${evento.horainicio[0]}:00.000-03:00`
+        `${dataSplit[2]}-${dataSplit[1]}-${dataSplit[0]}T${evento.horainicio[0]}:00.000-0300`
       );
       const horaTermino = new Date(
-        `${dataSplit[2]}-${dataSplit[1]}-${dataSplit[0]}T${evento.horatermino[0]}:00.000-03:00`
+        `${dataSplit[2]}-${dataSplit[1]}-${dataSplit[0]}T${evento.horatermino[0]}:00.000-0300`
       );
 
       return {
