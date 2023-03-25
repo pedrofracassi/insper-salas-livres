@@ -11,12 +11,13 @@ const ignoredRooms = [
   "REUNIÃO 732",
 ];
 
+// IMPORTANTE: Horários sempre em
 const roomClosingTimes: {
   [key: string]: [number, number, number, number];
 } = {
-  "404 - LABORATÓRIO DE INFORMÁTICA": [21, 0, 0, 0],
-  "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 1": [22, 50, 0, 0],
-  "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 2": [22, 50, 0, 0],
+  "404 - LABORATÓRIO DE INFORMÁTICA": [21 + 3, 0, 0, 0],
+  "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 1": [22 + 3, 50, 0, 0],
+  "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 2": [22 + 3, 50, 0, 0],
 };
 
 const displayNames: {
@@ -105,16 +106,17 @@ export default async function handler(
     .map((salaLivre) => {
       const nextEvent = calendarioFixed
         .filter((evento) => evento.sala === salaLivre.nome)
-        .filter((evento) => evento.hora_inicio > rightNow)
         .sort((a, b) => a.hora_inicio.getTime() - b.hora_inicio.getTime())[0];
 
+      console.log(nextEvent);
+
       const buildingClosingTime = new Date();
-      buildingClosingTime.setHours(23, 0, 0, 0);
+      buildingClosingTime.setUTCHours(23 + 3, 0, 0, 0);
 
       let roomClosingTime = buildingClosingTime;
       if (roomClosingTimes[salaLivre.nome]) {
         roomClosingTime = new Date();
-        roomClosingTime.setHours(...roomClosingTimes[salaLivre.nome]);
+        roomClosingTime.setUTCHours(...roomClosingTimes[salaLivre.nome]);
       }
 
       return {
@@ -124,7 +126,6 @@ export default async function handler(
       };
     })
     .filter((sala) => !ignoredRooms.includes(sala.nome))
-    .filter((sala) => sala.freeUntil > rightNow)
     .map((sala) => {
       return {
         ...sala,
