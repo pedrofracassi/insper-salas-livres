@@ -6,6 +6,7 @@ import axios from 'axios';
 import { SalasResponse } from '../types';
 import useSWR from 'swr';
 import luxon, { DateTime } from 'luxon';
+import Link from 'next/link';
 
 const predios = [
   {
@@ -70,8 +71,14 @@ export default function Home() {
             flexDirection: 'column',
             alignItems: 'flex-start',
           }}>
-            <p><b>As informações mostradas aqui mostradas são calculadas com base no calendário de aulas e algumas informações extras.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, entidades, etc.).</p>
-            <p>Faça bom uso :)</p>
+            <Typography
+              color='danger'
+            >
+              <b>As informações mostradas aqui são calculadas com base no calendário de aulas e algumas informações extras sobre os laboratórios.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, reuniões, entidades, etc.). Faça bom uso!
+              <br/>
+              <br />
+              – <Link href='https://instagram.com/pedro.fracassi'>Fracassi</Link> ;)
+            </Typography>
           </Alert>
           <Tabs value={predio} onChange={(event, newValue) => { handlePredioChange(newValue as number) }} size='sm' color='danger'>
             <TabList variant="soft" color="neutral">
