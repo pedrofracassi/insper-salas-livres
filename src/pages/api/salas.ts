@@ -32,7 +32,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const calendario = await axios.get(
-    "https://www.insper.edu.br/agenda/xml/ExibeCalendario.xml"
+    "https://cgi.insper.edu.br/agenda/xml/ExibeCalendario.xml"
   );
 
   const calendarioJson: RootAlocacao = await parseStringPromise(
