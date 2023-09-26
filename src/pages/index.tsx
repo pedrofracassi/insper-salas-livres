@@ -7,6 +7,7 @@ import { SalasResponse } from '../types';
 import useSWR from 'swr';
 import luxon, { DateTime } from 'luxon';
 import Link from 'next/link';
+import { Analytics } from '@vercel/analytics/react';
 
 const predios = [
   {
@@ -136,6 +137,7 @@ export default function Home() {
         }
         </div>
       </main>
+      <Analytics />
     </>
   )
 }
