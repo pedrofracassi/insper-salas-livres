@@ -14,7 +14,8 @@ const ignoredRooms = [
 ];
 
 const ignoredPrefixes = [
-  "REUNIÃO"
+  "REUNIÃO",
+  "9"
 ]
 
 // IMPORTANTE: Horários sempre em UTC
