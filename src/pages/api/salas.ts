@@ -180,7 +180,7 @@ export default async function handler(
       }
 
       const todayEventCount = calendarioFixed.filter(
-        (evento) => evento.sala === salaLivre.nome
+        (evento) => evento.sala === salaLivre.nome && evento.titulo !== 'SALA DE ESTUDOS'
       ).length
 
       return {
