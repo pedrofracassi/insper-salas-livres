@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Card from '@mui/joy/Card';
-import { Alert, Badge, Chip, CircularProgress, Tab, TabList, Tabs, Typography } from '@mui/joy';
+import { Alert, Badge, Button, Chip, CircularProgress, Tab, TabList, Tabs, Typography } from '@mui/joy';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SalasResponse } from '../types';
@@ -8,6 +8,9 @@ import useSWR from 'swr';
 import luxon, { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
+import hash from 'object-hash'
+
+const ENABLE_VOTES = true;
 
 const predios = [
   {
@@ -23,8 +26,11 @@ const predios = [
 ]
 
 async function fetchSalasLivres() {
-  const response = axios.get<SalasResponse>('/api/salas').then(res => res.data)
-  return response
+  const response = await axios.get<SalasResponse>('/api/salas').then(res => res.data)
+  return response.map(sala => ({
+    ...sala,
+    sortingKarma: sala.karma,
+  }))
 }
 
 function getNumeroAndar(stringAndar: string) {
@@ -34,10 +40,20 @@ function getNumeroAndar(stringAndar: string) {
 }
 
 export default function Home() {
-  const { data, error, isLoading } = useSWR('/api/salas', fetchSalasLivres)
+  const { data, error, isLoading, mutate } = useSWR('/api/salas', fetchSalasLivres)
 
   const [predio, setPredio] = useState(predios.length)
   const [andar, setAndar] = useState(0)
+  const [votes, setVotes] = useState<{ [key: string]: 'UP' | 'DOWN' }>({})
+  const [isVoting, setIsVoting] = useState<{ [key: string]: 'UP' | 'DOWN' | false }>({})
+
+  useEffect(() => {
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', crypto.randomUUID())
+    }
+
+    setVotes(JSON.parse(localStorage.getItem('votes') || `{}`) || {})
+  }, [])
 
   // @ts-ignore
   function handlePredioChange(newValue: number) {
@@ -47,6 +63,31 @@ export default function Home() {
 
   function handleAndarChange(newValue: number) {
     setAndar(newValue)
+  }
+
+  async function setVote(hash: string, vote: 'UP' | 'DOWN') {
+    setIsVoting(isVoting => ({ ...isVoting, [hash]: vote }))
+    const response = await axios.post('/api/vote', {
+      hash,
+      vote,
+      user_id: localStorage.getItem('userId'),
+    })
+    if (response.status === 200) {
+      setVotes(votes => {
+        const voteObject = { ...votes, [hash]: vote }
+        localStorage.setItem('votes', JSON.stringify(voteObject))
+        return voteObject
+      })
+      mutate(data => ([
+        ...data!.filter(sala => sala.hash !== hash),
+        {
+          ...data!.find(sala => sala.hash === hash)!,
+          karma: response.data.score
+        }
+      ]), false)
+      setIsVoting(isVoting => ({ ...isVoting, [hash]: false }))
+    }
+    
   }
 
   return (
@@ -111,16 +152,35 @@ export default function Home() {
               .filter(sala => predio === predios.length || sala.predio == predios[predio].apiName)
               .filter(sala => !predios[predio] || andar === predios[predio].andares.length || getNumeroAndar(sala.andar) == predios[predio].andares[andar])
               .sort((a, b) => a.nome > b.nome ? 1 : -1)
-              .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime()).map((sala, index) => (
-                <Card variant='outlined' key={index}>
-                  <Typography level="h6" fontSize={14} color='danger'>{sala.nome}</Typography>
-                  <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
-                  <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
-                    timeZone: 'America/Sao_Paulo',
-                    hour: "numeric",
-                    minute: "numeric",
-                    hourCycle: "h23",
-                  })}</b></Typography>
+              .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
+              .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime())
+              .map((sala, index) => (
+                <Card variant='outlined' key={sala.nome}>
+                  <div style={{display: 'flex'}}>
+                    <div style={{flexGrow: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+                      <Typography level="h2" fontSize={14} color='danger'>{sala.nome}</Typography>
+                      <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
+                      <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
+                        timeZone: 'America/Sao_Paulo',
+                        hour: "numeric",
+                        minute: "numeric",
+                        hourCycle: "h23",
+                      })}</b></Typography>
+                    </div>
+                    {
+                      ENABLE_VOTES ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2em', alignItems: 'center' }}>
+                          <Button onClick={() => {
+                            setVote(sala.hash, 'UP')
+                          }} disabled={votes[sala.hash] === 'UP' || !!isVoting[sala.hash]} loading={isVoting[sala.hash] == 'UP'} size='sm'>👍</Button>
+                          <Typography color={sala.karma != 0 ? sala.karma >= 1 ? 'success' : 'danger' : null}><b>{sala.karma}</b></Typography>
+                          <Button onClick={() => {
+                            setVote(sala.hash, 'DOWN')
+                          }} disabled={votes[sala.hash] === 'DOWN' || !!isVoting[sala.hash]} loading={isVoting[sala.hash] == 'DOWN'} size='sm'>👎</Button>
+                        </div>
+                      ) : <></>
+                    }
+                  </div>
                 </Card>
               ))
           ) : (

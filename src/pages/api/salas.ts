@@ -3,6 +3,8 @@ import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { parseStringPromise } from "xml2js";
 import { CalendarioEvento, RootAlocacao, SalasResponse } from "../../types";
+import hash from 'object-hash'
+import { kv } from "@vercel/kv";
 
 const ignoredRooms = [
   "AULA REMOTA",
@@ -35,6 +37,15 @@ export default async function handler(
   const calendario = await axios.get(
     "https://cgi.insper.edu.br/agenda/xml/ExibeCalendario.xml"
   );
+
+  const allKeys = await kv.keys("votes:*")
+  const allVotes = await Promise.all(allKeys.map(key => kv.smembers(key)))
+  const allVotesWithKeys: {
+    [key: `votes:${string}:${"UP" | "DOWN"}`]: string[]
+  } = allKeys.reduce((acc, key, index) => ({
+    ...acc,
+    [key]: allVotes[index]
+  }), {})
 
   const calendarioJson: RootAlocacao = await parseStringPromise(
     calendario.data
@@ -137,7 +148,12 @@ export default async function handler(
         ...sala,
         nome: displayNames[sala.nome] || sala.nome,
       };
-    });
+    })
+    .map(sala => ({
+      ...sala,
+      hash: hash(sala),
+      karma: allVotesWithKeys[`votes:${hash(sala)}:UP`]?.length || 0 - allVotesWithKeys[`votes:${hash(sala)}:DOWN`]?.length || 0,
+    }))
 
   res.status(200).json(salasLivres);
 }
