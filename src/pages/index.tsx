@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
 import va from '@vercel/analytics';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextPageContext } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext, GetStaticProps, GetStaticPropsContext, InferGetServerSidePropsType, NextPageContext } from 'next';
 import { getAll } from '@vercel/edge-config'
 
 const predios = [
@@ -33,10 +33,11 @@ type Config = {
   showTopCard: boolean,
 }
 
-export const getServerSideProps: GetServerSideProps<{ config: Config }> = async (context: GetServerSidePropsContext) => {
+export const getStaticProps: GetStaticProps<{ config: Config }> = async (context: GetStaticPropsContext) => {
   const config = await getAll<Config>();
   return {
-    props: { config }
+    props: { config },
+    revalidate: 60 * 15,
   };
 }
 
