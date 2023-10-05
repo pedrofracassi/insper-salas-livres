@@ -9,8 +9,8 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
 import va from '@vercel/analytics';
-
-const ENABLE_VOTES = true;
+import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType, NextPageContext } from 'next';
+import { getAll } from '@vercel/edge-config'
 
 const predios = [
   {
@@ -25,6 +25,21 @@ const predios = [
   }
 ]
 
+type Config = {
+  enableVotes: boolean,
+  showNewsCard: boolean,
+  newsCardTitle: string,
+  newsCardText: string,
+  showTopCard: boolean,
+}
+
+export const getServerSideProps: GetServerSideProps<{ config: Config }> = async (context: GetServerSidePropsContext) => {
+  const config = await getAll<Config>();
+  return {
+    props: { config }
+  };
+}
+
 async function fetchSalasLivres() {
   const response = await axios.get<SalasResponse>('/api/salas').then(res => res.data)
   return response.map(sala => ({
@@ -33,13 +48,15 @@ async function fetchSalasLivres() {
   }))
 }
 
+const interleave = (arr: any[], x: any) => arr.flatMap(e => [e, x]).slice(0, -1)
+
 function getNumeroAndar(stringAndar: string) {
   if (stringAndar === 'TÉRREO') return 0
   if (stringAndar.includes('SUBSOLO')) return -parseInt(stringAndar.split('')[0])
   return parseInt(stringAndar.split('')[0])
 }
 
-export default function Home() {
+export default function Home({ config }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data, error, isLoading, mutate } = useSWR('/api/salas', fetchSalasLivres)
 
   const [predio, setPredio] = useState(predios.length)
@@ -125,23 +142,48 @@ export default function Home() {
           flexDirection: 'column',
           gap: '0.5rem',
           maxWidth: '500px',
+          width: '100%',
         }}>
-          <Alert color='danger' style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-          }}>
-            <Typography
-              color='danger'
-            >
-              <b>As informações mostradas aqui são calculadas com base no calendário de aulas e algumas informações extras sobre os laboratórios.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, reuniões, entidades, etc.). Faça bom uso!
-              <br/>
-              <br />
-              – <Link href='https://instagram.com/pedro.fracassi'>Fracassi</Link> ;)
-            </Typography>
-          </Alert>
-          <Tabs value={predio} onChange={(event, newValue) => { handlePredioChange(newValue as number) }} size='sm' color='danger'>
-            <TabList variant="soft" color="neutral">
+          {
+            config.showTopCard ? (
+              <Alert color='danger' style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              }}>
+                <Typography
+                  color='danger'
+                >
+                  <b>As informações mostradas aqui são calculadas com base no calendário de aulas e algumas informações extras sobre os laboratórios.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, reuniões, entidades, etc.). Faça bom uso!
+                  <br />
+                  <br />
+                  – <Link href='https://instagram.com/pedro.fracassi'>Fracassi</Link> ;)
+                </Typography>
+              </Alert>
+            ) : <></>
+          }
+          {
+            config.showNewsCard ? (
+              <Alert color='warning' style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start'
+              }}>
+                <Typography
+                  color='warning'
+                >
+                  <b>{config.newsCardTitle} </b>
+                  {
+                    interleave(config.newsCardText.split('\n').map((line, index) => (
+                      <Typography key={index} color='warning'>{line}</Typography>
+                    )), <br />)
+                  }
+                </Typography>
+              </Alert>
+            ) : <></>
+          }
+          <Tabs style={{width: '100%'}} value={predio} onChange={(event, newValue) => { handlePredioChange(newValue as number) }} size='sm' color='danger'>
+            <TabList style={{ width: '100%' }} variant="soft" color="neutral">
               {
                 predios.map((predio, index) => (
                   <Tab key={index}>{predio.nome}</Tab>
@@ -174,7 +216,7 @@ export default function Home() {
               .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime())
               .sort((a, b) => a.forStudiesUntil && b.forStudiesUntil ? new Date(b.forStudiesUntil).getTime() - new Date(a.forStudiesUntil).getTime() : 0)
               .sort((a, b) => a.forStudies ? -1 : 1)
-              .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
+              .sort((a, b) => config.enableVotes ? b.sortingKarma - a.sortingKarma : 0)
               .map((sala, index) => (
                 <Card variant='outlined' key={sala.nome}>
                   <div style={{display: 'flex'}}>
@@ -204,7 +246,7 @@ export default function Home() {
                       }
                     </div>
                     {
-                      ENABLE_VOTES ? (
+                      config.enableVotes ? (
                         <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '0.2em', alignItems: 'center' }}>
                           <Button onClick={() => {
                             setVote(sala.hash, 'UP')
