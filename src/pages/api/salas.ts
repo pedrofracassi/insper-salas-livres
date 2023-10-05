@@ -22,7 +22,7 @@ const ignoredPrefixes = [
 const roomClosingTimes: {
   [key: string]: [number, number, number, number];
 } = {
-  "404 - LABORATÓRIO DE INFORMÁTICA": [21 + 3, 0, 0, 0],
+  "404 - LABORATÓRIO DE INFORMÁTICA": [20 + 3, 0, 0, 0],
   "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 1": [22 + 3, 50, 0, 0],
   "LABORATÓRIO DESENVOLVIMENTO COLABORATIVO ÁGIL 2": [22 + 3, 50, 0, 0],
 };
