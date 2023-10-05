@@ -173,7 +173,7 @@ export default function Home() {
                           <Button onClick={() => {
                             setVote(sala.hash, 'UP')
                           }} disabled={votes[sala.hash] === 'UP' || !!isVoting[sala.hash]} loading={isVoting[sala.hash] == 'UP'} size='sm'>👍</Button>
-                          <Typography color={sala.karma != 0 ? sala.karma >= 1 ? 'success' : 'danger' : null}><b>{sala.karma}</b></Typography>
+                          <Typography color={sala.karma != 0 ? sala.karma >= 1 ? 'success' : 'danger' : undefined}><b>{sala.karma}</b></Typography>
                           <Button onClick={() => {
                             setVote(sala.hash, 'DOWN')
                           }} disabled={votes[sala.hash] === 'DOWN' || !!isVoting[sala.hash]} loading={isVoting[sala.hash] == 'DOWN'} size='sm'>👎</Button>
