@@ -9,6 +9,7 @@ import luxon, { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
 import hash from 'object-hash'
+import va from '@vercel/analytics';
 
 const ENABLE_VOTES = true;
 
@@ -88,6 +89,10 @@ export default function Home() {
       setIsVoting(isVoting => ({ ...isVoting, [hash]: false }))
     }
     
+    va.track(`vote_${vote.toLowerCase()}`, {
+      room_hash: hash,
+      user_id: localStorage.getItem('userId'),
+    })
   }
 
   return (
