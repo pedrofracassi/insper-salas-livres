@@ -93,7 +93,7 @@ export default async function handler(
 
   const rightNow = new Date();
 
-  const salasRedisData = await kv.hgetall<Record<string, { a: string }>>("salas") || {}
+  const salasRedisData = await kv.hgetall<Record<string, { nome: string, predio: string, andar: string }>>("salas") || {}
   const todasSalasRedis = Object.keys(salasRedisData).map((sala) => sala + '')
   const todasSalasInsper = [
     ...new Set(calendarioFixed.map((evento) => evento.sala)),
@@ -201,11 +201,22 @@ export default async function handler(
         nome: displayNames[sala.nome] || sala.nome,
       };
     })
-    .map(sala => ({
-      ...sala,
-      hash: hash(sala),
-      karma: allVotesWithKeys[`votes:${hash(sala)}:UP`]?.length || 0 - allVotesWithKeys[`votes:${hash(sala)}:DOWN`]?.length || 0,
-    }))
+    .map(sala => {
+      const salaHash = hash({
+        ...sala,
+        eventosAgora: undefined,
+        fromCache: undefined,
+        todayEventCount: undefined,
+      })
+      return {
+        ...sala,
+        hash: salaHash,
+        karma: (allVotesWithKeys[`votes:${salaHash}:UP`]?.length || 0) - (allVotesWithKeys[`votes:${salaHash}:DOWN`]?.length || 0),
+
+        eventosAgora: undefined,
+        fromCache: undefined,
+      }
+    })
 
   res.status(200).json(salasLivres);
 }

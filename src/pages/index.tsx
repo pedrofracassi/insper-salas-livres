@@ -5,10 +5,9 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { SalasResponse } from '../types';
 import useSWR from 'swr';
-import luxon, { DateTime } from 'luxon';
+import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import hash from 'object-hash'
 import va from '@vercel/analytics';
 
 const ENABLE_VOTES = true;
