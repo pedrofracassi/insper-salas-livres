@@ -173,6 +173,7 @@ export default function Home() {
               .sort((a, b) => a.nome > b.nome ? 1 : -1)
               .sort((a, b) => a.todayEventCount > b.todayEventCount ? -1 : 1)
               .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime())
+              .sort((a, b) => a.forStudiesUntil && b.forStudiesUntil ? new Date(b.forStudiesUntil).getTime() - new Date(a.forStudiesUntil).getTime() : 0)
               .sort((a, b) => a.forStudies ? -1 : 1)
               .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
               .map((sala, index) => (
