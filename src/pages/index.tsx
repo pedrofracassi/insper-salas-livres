@@ -204,7 +204,7 @@ export default function Home() {
                     </div>
                     {
                       ENABLE_VOTES ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2em', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '0.2em', alignItems: 'center' }}>
                           <Button onClick={() => {
                             setVote(sala.hash, 'UP')
                           }} disabled={votes[sala.hash] === 'UP' || !!isVoting[sala.hash]} loading={isVoting[sala.hash] == 'UP'} size='sm'>👍</Button>
