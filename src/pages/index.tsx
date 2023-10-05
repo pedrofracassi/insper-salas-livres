@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
 import va from '@vercel/analytics';
-import { GetServerSideProps, GetServerSidePropsContext, GetStaticProps, GetStaticPropsContext, InferGetServerSidePropsType, NextPageContext } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext, GetStaticProps, GetStaticPropsContext, InferGetServerSidePropsType, InferGetStaticPropsType, NextPageContext } from 'next';
 import { getAll } from '@vercel/edge-config'
 
 const predios = [
@@ -57,7 +57,7 @@ function getNumeroAndar(stringAndar: string) {
   return parseInt(stringAndar.split('')[0])
 }
 
-export default function Home({ config }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Home({ config }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { data, error, isLoading, mutate } = useSWR('/api/salas', fetchSalasLivres)
 
   const [predio, setPredio] = useState(predios.length)
