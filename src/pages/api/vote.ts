@@ -33,13 +33,15 @@ export default async function handler(
     }
 
     await kv.multi()
-      .expire(`votes:${body.hash}:${body.vote}`, 60 * 60 * 12)
       .sadd(`votes:${body.hash}:${body.vote}`, body.user_id)
       .srem(`votes:${body.hash}:${body.vote === "UP" ? "DOWN" : "UP"}`, body.user_id)
+      .expire(`votes:${body.hash}:${body.vote}`, 60 * 60 * 12)
       .exec()
 
-    const membersUp = await kv.smembers(`votes:${body.hash}:UP`)
-    const membersDown = await kv.smembers(`votes:${body.hash}:DOWN`)
+    const [membersUp, membersDown] = await Promise.all([
+      kv.smembers(`votes:${body.hash}:UP`),
+      kv.smembers(`votes:${body.hash}:DOWN`)
+    ])
 
     res.status(200).json({ score: membersUp.length - membersDown.length });
   }
