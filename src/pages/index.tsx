@@ -51,6 +51,7 @@ export default function Home() {
   useEffect(() => {
     if (!localStorage.getItem('userId')) {
       localStorage.setItem('userId', crypto.randomUUID())
+      va.track('new_userid', { id: localStorage.getItem('userId') })
     }
 
     setVotes(JSON.parse(localStorage.getItem('votes') || `{}`) || {})
@@ -59,11 +60,19 @@ export default function Home() {
   // @ts-ignore
   function handlePredioChange(newValue: number) {
     setPredio(newValue)
+    va.track('predio_filter', {
+      predio: predio,
+      andar: newValue,
+    })
     if (newValue !== predios.length) setAndar(predios[newValue].andares.length)
   }
 
   function handleAndarChange(newValue: number) {
     setAndar(newValue)
+    va.track('andar_filter', {
+      predio: predio,
+      andar: newValue,
+    })
   }
 
   async function setVote(hash: string, vote: 'UP' | 'DOWN') {
