@@ -86,39 +86,79 @@ export default async function handler(
         subgrupo: evento.subgrupo ? evento.subgrupo[0] : null,
       };
     }
-  );
+  )
+    .filter((evento) => evento.cancelada === false)
+    .filter(evento => !ignoredRooms.includes(evento.sala))
+    .filter(evento => !ignoredPrefixes.some(prefix => evento.sala.startsWith(prefix)))
 
   const rightNow = new Date();
 
-  const nomesSalasUnicas = [
+  const salasRedisData = await kv.hgetall<Record<string, { a: string }>>("salas") || {}
+  const todasSalasRedis = Object.keys(salasRedisData).map((sala) => sala + '')
+  const todasSalasInsper = [
     ...new Set(calendarioFixed.map((evento) => evento.sala)),
-  ].filter((sala) => !ignoredRooms.includes(sala));
+  ]
 
-  const salasUnicas = nomesSalasUnicas.map((nomeSala) => {
+  const newSalas: {
+    [key: string]: {
+      nome: string,
+      predio: string,
+      andar: string,
+    }
+  } = todasSalasInsper.filter(sala => !todasSalasRedis.includes(sala)).reduce((acc, curr, i) => ({
+    ...acc,
+    [curr]: {
+      nome: curr,
+      predio: calendarioFixed.find(evento => evento.sala === curr)?.predio,
+      andar: calendarioFixed.find(evento => evento.sala === curr)?.andar,
+    }
+  }), {})
+
+  kv.hset("salas", newSalas)
+
+  const todasSalas = [
+    ...new Set([
+      ...todasSalasRedis.map(a => a + ''),
+      ...todasSalasInsper.map(a => a + ''),
+    ])
+  ]
+
+  const salasUnicas = todasSalas.map((nomeSala) => {
     const sala = calendarioFixed.find((evento) => evento.sala === nomeSala);
     if (!sala) {
-      throw new Error("Sala não encontrada");
+      return {
+        ...salasRedisData[nomeSala + ''],
+        fromCache: true,
+        nome: nomeSala,
+      }
     }
     return {
       nome: sala.sala,
       predio: sala.predio,
       andar: sala.andar,
+      fromCache: false
     };
   });
 
   const salasLivres = salasUnicas
-    .filter((sala) => {
-      const eventos = calendarioFixed.filter(
+    .map(sala => ({
+      ...sala,
+      eventosAgora: calendarioFixed.filter(
         (evento) => evento.sala === sala.nome
-      );
-      const eventosAgora = eventos.filter((evento) => {
+      ).filter((evento) => {
         return (
           evento.hora_inicio.getTime() <= rightNow.getTime() &&
           evento.hora_termino.getTime() >= rightNow.getTime()
         );
-      });
-
-      return eventosAgora.length === 0;
+      })
+    }))
+    .map(sala => ({
+      ...sala,
+      forStudies: sala.eventosAgora.some(evento => evento.titulo === 'SALA DE ESTUDOS'),
+      forStudiesUntil: sala.eventosAgora.filter(evento => evento.titulo === 'SALA DE ESTUDOS').sort((a, b) => a.hora_inicio.getTime() - b.hora_inicio.getTime())[0]?.hora_termino
+    }))
+    .filter((sala) => {
+      return sala.eventosAgora.length === 0 || sala.forStudies;
     })
     .map((salaLivre) => {
       const nextEvent = calendarioFixed
@@ -139,10 +179,15 @@ export default async function handler(
         roomClosingTime.setUTCHours(...roomClosingTimes[salaLivre.nome]);
       }
 
+      const todayEventCount = calendarioFixed.filter(
+        (evento) => evento.sala === salaLivre.nome
+      ).length
+
       return {
         ...salaLivre,
         nextEvent: nextEvent ? nextEvent.titulo : null,
         freeUntil: nextEvent ? nextEvent.hora_inicio : roomClosingTime,
+        todayEventCount,
       };
     })
     .filter((sala) => !ignoredPrefixes.some(prefix => sala.nome.startsWith(prefix)))

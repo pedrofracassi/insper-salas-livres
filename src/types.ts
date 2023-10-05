@@ -35,4 +35,7 @@ export interface SalaLivre {
   freeUntil: string;
   hash: string;
   karma: number;
+  todayEventCount: number;
+  forStudies: boolean;
+  forStudiesUntil?: string;
 }

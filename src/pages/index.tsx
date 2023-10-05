@@ -158,6 +158,7 @@ export default function Home() {
               .filter(sala => !predios[predio] || andar === predios[predio].andares.length || getNumeroAndar(sala.andar) == predios[predio].andares[andar])
               .sort((a, b) => a.nome > b.nome ? 1 : -1)
               .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
+              .sort((a, b) => a.forStudies ? -1 : 1)
               .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime())
               .map((sala, index) => (
                 <Card variant='outlined' key={sala.nome}>
@@ -171,6 +172,21 @@ export default function Home() {
                         minute: "numeric",
                         hourCycle: "h23",
                       })}</b></Typography>
+                      {
+                        sala.todayEventCount === 0 ? (
+                          <Typography color='warning'>⭐ Sem aulas hoje</Typography>
+                        ) : <></>
+                      }
+                      {
+                        sala.forStudies && sala.forStudiesUntil ? (
+                          <Typography color='success'>✅ Reservada para estudos até <b>{DateTime.fromISO(sala.forStudiesUntil).toLocaleString({
+                            timeZone: 'America/Sao_Paulo',
+                            hour: "numeric",
+                            minute: "numeric",
+                            hourCycle: "h23",
+                          })}</b></Typography>
+                        ) : <></>
+                      }
                     </div>
                     {
                       ENABLE_VOTES ? (
