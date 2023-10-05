@@ -13,6 +13,10 @@ const ignoredRooms = [
   "REUNIÃO 732",
 ];
 
+const ignoredPrefixes = [
+  "REUNIÃO"
+]
+
 // IMPORTANTE: Horários sempre em UTC
 const roomClosingTimes: {
   [key: string]: [number, number, number, number];
@@ -141,6 +145,7 @@ export default async function handler(
         freeUntil: nextEvent ? nextEvent.hora_inicio : roomClosingTime,
       };
     })
+    .filter((sala) => !ignoredPrefixes.some(prefix => sala.nome.startsWith(prefix)))
     .filter((sala) => !ignoredRooms.includes(sala.nome))
     .filter((sala) => sala.freeUntil > rightNow)
     .map((sala) => {

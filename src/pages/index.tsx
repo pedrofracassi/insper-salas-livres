@@ -102,11 +102,16 @@ export default function Home() {
         <meta name="msapplication-TileColor" content="#da532c"/>
         <meta name="theme-color" content="#ffffff"/>
       </Head>
-      <main>
+      <main style={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+      }}>
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
+          maxWidth: '500px',
         }}>
           <Alert color='danger' style={{
             display: 'flex',
