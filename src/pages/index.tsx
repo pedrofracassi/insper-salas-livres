@@ -171,9 +171,10 @@ export default function Home() {
               .filter(sala => predio === predios.length || sala.predio == predios[predio].apiName)
               .filter(sala => !predios[predio] || andar === predios[predio].andares.length || getNumeroAndar(sala.andar) == predios[predio].andares[andar])
               .sort((a, b) => a.nome > b.nome ? 1 : -1)
-              .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
-              .sort((a, b) => a.forStudies ? -1 : 1)
+              .sort((a, b) => a.todayEventCount > b.todayEventCount ? -1 : 1)
               .sort((a, b) => new Date(b.freeUntil).getTime() - new Date(a.freeUntil).getTime())
+              .sort((a, b) => a.forStudies ? -1 : 1)
+              .sort((a, b) => ENABLE_VOTES ? b.sortingKarma - a.sortingKarma : 0)
               .map((sala, index) => (
                 <Card variant='outlined' key={sala.nome}>
                   <div style={{display: 'flex'}}>
