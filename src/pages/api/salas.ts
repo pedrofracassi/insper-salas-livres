@@ -114,7 +114,9 @@ export default async function handler(
     }
   }), {})
 
-  kv.hset("salas", newSalas)
+  if (Object.keys(newSalas).length > 0) {
+    kv.hset("salas", newSalas)
+  }
 
   const todasSalas = [
     ...new Set([
