@@ -35,12 +35,21 @@ const displayNames: {
   "403 - LABORATÓRIO DE SISTEMAS ELETRÔNICOS": "LAB. SISTEMAS MECATRÔNICOS"
 };
 
+import UserAgent from 'user-agents';
+
+const userAgent = new UserAgent();
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const calendario = await axios.get(
-    "https://cgi.insper.edu.br/agenda/xml/ExibeCalendario.xml"
+    "https://cgi.insper.edu.br/agenda/xml/ExibeCalendario.xml",
+    {
+      headers: {
+        "User-Agent": userAgent.toString(),
+      },
+    }
   );
 
   const allKeys = await kv.keys("votes:*")
