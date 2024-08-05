@@ -14,14 +14,19 @@ import { getAll } from '@vercel/edge-config'
 
 const predios = [
   {
-    nome: 'Prédio 1',
-    apiName: 'PRÉDIO 1',
+    nome: 'Quatá 300 (P1)',
+    apiName: 'PRÉDIO QUATÁ 300',
     andares: [-1, 1, 2, 3, 4]
   },
   {
-    nome: 'Prédio 2',
-    apiName: 'PRÉDIO 2',
+    nome: 'Quatá 200 (P2)',
+    apiName: 'PRÉDIO QUATÁ 200',
     andares: [1, 2, 3, 4, 5]
+  },
+  {
+    nome: 'Quatá 67 (P3)',
+    apiName: 'PRÉDIO QUATÁ 67',
+    andares: [1, 2, 3, 4, 5, 6]
   }
 ]
 
