@@ -243,7 +243,7 @@ export default function Home({ config }: InferGetStaticPropsType<typeof getStati
                   <div style={{display: 'flex'}}>
                     <div style={{flexGrow: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
                       <Typography level="h2" fontSize={14} color='danger'>{sala.nome}</Typography>
-                      <Typography level="body2">{predios.find(p => p.apiNames.includes(sala.predio))?.nome.toUpperCase() || sala.predio} • {sala.andar}</Typography>
+                      <Typography level="body-sm">{predios.find(p => p.apiNames.includes(sala.predio))?.nome.toUpperCase() || sala.predio} • {sala.andar}</Typography>
                       <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
                         timeZone: 'America/Sao_Paulo',
                         hour: "numeric",
