@@ -1,31 +1,31 @@
-import Head from 'next/head'
+import { Alert, Button, CircularProgress, Tab, TabList, Tabs, Typography } from '@mui/joy';
 import Card from '@mui/joy/Card';
-import { Alert, Badge, Button, Chip, CircularProgress, Tab, TabList, Tabs, Typography } from '@mui/joy';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { SalasResponse } from '../types';
-import useSWR from 'swr';
-import { DateTime } from 'luxon';
-import Link from 'next/link';
-import { Analytics } from '@vercel/analytics/react';
 import va from '@vercel/analytics';
-import { GetServerSideProps, GetServerSidePropsContext, GetStaticProps, GetStaticPropsContext, InferGetServerSidePropsType, InferGetStaticPropsType, NextPageContext } from 'next';
-import { getAll } from '@vercel/edge-config'
+import { Analytics } from '@vercel/analytics/react';
+import { getAll } from '@vercel/edge-config';
+import axios from 'axios';
+import { DateTime } from 'luxon';
+import { GetStaticProps, GetStaticPropsContext, InferGetStaticPropsType } from 'next';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { SalasResponse } from '../types';
 
 const predios = [
   {
-    nome: 'Quatá 300 (P1)',
-    apiName: 'PRÉDIO QUATÁ 300',
+    nome: 'Quatá 300',
+    apiNames: ['PRÉDIO QUATÁ 300', 'PRÉDIO CLAUDIO HADDAD (QUATÁ,300)'],
     andares: [-1, 1, 2, 3, 4]
   },
   {
-    nome: 'Quatá 200 (P2)',
-    apiName: 'PRÉDIO QUATÁ 200',
+    nome: 'Quatá 200',
+    apiNames: ['PRÉDIO QUATÁ 200'],
     andares: [1, 2, 3, 4, 5]
   },
   {
-    nome: 'Quatá 67 (P3)',
-    apiName: 'PRÉDIO QUATÁ 67',
+    nome: 'Quatá 67',
+    apiNames: ['PRÉDIO QUATÁ 67'],
     andares: [1, 2, 3, 4, 5, 6]
   }
 ]
@@ -38,8 +38,23 @@ type Config = {
   showTopCard: boolean,
 }
 
+async function getConfigWithDefaults(): Promise<Config> {
+  try {
+    const config = await getAll<Config>()
+    return config
+  } catch (error) {
+    return {
+      enableVotes: true,
+      showNewsCard: true,
+      newsCardTitle: 'Nova funcionalidade!',
+      newsCardText: 'Agora você pode votar nas salas que você mais gosta!',
+      showTopCard: true,
+    }
+  }
+}
+
 export const getStaticProps: GetStaticProps<{ config: Config }> = async (context: GetStaticPropsContext) => {
-  const config = await getAll<Config>();
+  const config = await getConfigWithDefaults();
   return {
     props: { config },
     revalidate: 60 * 15,
@@ -160,10 +175,10 @@ export default function Home({ config }: InferGetStaticPropsType<typeof getStati
                 <Typography
                   color='danger'
                 >
-                  <b>As informações mostradas aqui são calculadas com base no calendário de aulas e algumas informações extras sobre os laboratórios.</b> As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, reuniões, entidades, etc.). Faça bom uso!
+                  As salas podem estar ocupadas mesmo que estejam disponíveis aqui, pois essa página não leva em conta outros tipo de reserva (eventos, reuniões, entidades, etc.). Faça bom uso!
                   <br />
                   <br />
-                  – <Link href='https://instagram.com/pedro.fracassi'>Fracassi</Link> ;)
+                  Quer ajudar com o desenvolvimento desse site? <Link href='https://github.com/pedrofracassi/insper-salas-livres'>Acesse o repositório no GitHub</Link> e contribua!
                 </Typography>
               </Alert>
             ) : <></>
@@ -215,7 +230,7 @@ export default function Home({ config }: InferGetStaticPropsType<typeof getStati
           {
           data ? (
             data
-              .filter(sala => predio === predios.length || sala.predio == predios[predio].apiName)
+              .filter(sala => predio === predios.length || predios[predio].apiNames.includes(sala.predio))
               .filter(sala => !predios[predio] || andar === predios[predio].andares.length || getNumeroAndar(sala.andar) == predios[predio].andares[andar])
               .sort((a, b) => a.nome > b.nome ? 1 : -1)
               .sort((a, b) => a.todayEventCount > b.todayEventCount ? -1 : 1)
@@ -228,7 +243,7 @@ export default function Home({ config }: InferGetStaticPropsType<typeof getStati
                   <div style={{display: 'flex'}}>
                     <div style={{flexGrow: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
                       <Typography level="h2" fontSize={14} color='danger'>{sala.nome}</Typography>
-                      <Typography level="body2">{sala.predio} • {sala.andar}</Typography>
+                      <Typography level="body2">{predios.find(p => p.apiNames.includes(sala.predio))?.nome.toUpperCase() || sala.predio} • {sala.andar}</Typography>
                       <Typography>Disponível até as <b>{DateTime.fromISO(sala.freeUntil).toLocaleString({
                         timeZone: 'America/Sao_Paulo',
                         hour: "numeric",
