@@ -45,7 +45,7 @@ async function getConfigWithDefaults(): Promise<Config> {
   } catch (error) {
     return {
       enableVotes: true,
-      showNewsCard: true,
+      showNewsCard: false,
       newsCardTitle: 'Nova funcionalidade!',
       newsCardText: 'Agora você pode votar nas salas que você mais gosta!',
       showTopCard: true,
